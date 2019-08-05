@@ -29,7 +29,7 @@ logger = jlrpy.logger
 def check_soc():
     """Retrieve vehicle status.
     """
-    threading.Timer(5*60.0, check_soc).start()  # Called every 5 minutes
+    threading.Timer(2*60.0, check_soc).start()  # Called every 5 minutes
 
     # getting status update
     status = { d['key'] : d['value'] for d in v.get_status()['vehicleStatus'] }

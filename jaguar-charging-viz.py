@@ -14,6 +14,7 @@ import math
 
 from datetime import date
 import os
+import logging
 import json
 import glob
 import configparser
@@ -159,6 +160,9 @@ data_columns = [
 
 
 directory_charging_log = "jaguar-logs"
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger("jaguar-logs-viz")
+logger.info("[*] Logging charging vizualization")
 
 json_pattern = os.path.join(directory_charging_log,'charging-log*.json')
 list_charging_log = glob.glob(json_pattern)
@@ -167,16 +171,21 @@ data = []
 charging_data_row = []
 
 """!missing GPS information"""
-"""!missing: empty file detection """
+"""!missing: wrong format file detection """
     
 for charging_log_file in list_charging_log:
-    clogfile= open(charging_log_file,"r")
-    charging_data_row = eval(clogfile.read())
-    data_row = []                              
-    for item in data_columns:
-        data_row.append(charging_data_row[item])
-    data.append(data_row)
-    clogfile.close()    
+    
+    if os.stat(charging_log_file).st_size > 0 :
+        clogfile= open(charging_log_file,"r")
+        charging_data_row = eval(clogfile.read())
+        data_row = []                              
+        for item in data_columns:
+            data_row.append(charging_data_row[item])
+            data.append(data_row)
+        clogfile.close()    
+    else:
+        logger.warning("could not read charging log file " + charging_log_file) 
+
         
 
 """ Part III: Vizualization of time series
@@ -207,6 +216,13 @@ for item in data_columns_daytime:
 
 timeseries.plot(kind='scatter',x='EV_STATE_OF_CHARGE',y='EV_CHARGING_RATE_SOC_PER_HOUR',color='red')
 plt.show()
+
+"""
+timeseries.groupby(['ODOMETER_METER']).plot(kind='line',x='EV_STATE_OF_CHARGE',y='EV_CHARGING_RATE_SOC_PER_HOUR',color='black', title='ODOMETER_METER')
+"""
+timeseries.groupby(['ODOMETER_METER']).plot(style='.-',x='EV_STATE_OF_CHARGE',y='EV_CHARGING_RATE_SOC_PER_HOUR',color='black', title='ODOMETER_METER')
+plt.show()
+
 
 timeseries.plot(kind='scatter',x='EV_STATE_OF_CHARGE',y='EV_MINUTES_TO_FULLY_CHARGED',color='blue')
 plt.show()
