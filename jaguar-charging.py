@@ -29,7 +29,14 @@ logger = jlrpy.logger
 def check_soc():
     """Retrieve vehicle status.
     """
-    threading.Timer(2*60.0, check_soc).start()  # Called every 5 minutes
+    
+    """!missing: adjust logging frequency to charging speed: 
+      > 100% every 1 Min
+      > 50% every 2 Min
+      > 0 every 5 Min
+      unpluged every 5 Min
+    """
+    threading.Timer(2 * 60, check_soc).start() # Called every 2 minutes 
 
     # getting status update
     status = { d['key'] : d['value'] for d in v.get_status()['vehicleStatus'] }
@@ -45,6 +52,7 @@ def check_soc():
         p = v.get_position()
         position = (p['position']['latitude'], p['position']['longitude'])
         logger.info("car geo-position is "+str(position))
+        position = ", 'POSITION_LATITUDE': " + str(position[0]) + ", 'POSITION_LONGITUDE': " + str(position[1])
 
         t = datetime.datetime.now()
         clogfilename = "jaguar-logs/charging-log_" + t.strftime("%Y-%m-%d_%H-%M-%S") + ".json"
@@ -55,7 +63,7 @@ def check_soc():
         healthstatus = v.get_health_status()
         status = { d['key'] : d['value'] for d in v.get_status()['vehicleStatus']}
         logtime = ", 'LOGTIMESTAMP': '"+ t.isoformat() +"'}"
-        clogfile.write(str(status).replace("}", "") + logtime)
+        clogfile.write(str(status).replace("}", "") + position + logtime)
         clogfile.close()    
         
     else:
