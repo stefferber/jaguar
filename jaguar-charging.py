@@ -4,6 +4,7 @@
 This script will download the get_vehicle_status every 5 minutes
 and log them locally. Based on the Charge Off-Peak script.
 
+This script is independent from visualization script in order to run it on different computers
 
 """
 
