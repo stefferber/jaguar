@@ -13,6 +13,7 @@ import threading
 import datetime
 import math
 
+import numpy as np
 from datetime import date
 import os
 import logging
@@ -232,6 +233,8 @@ plt.show()
 """
 """ !missing: I don't know how I can put the TIMESTAMP in each graph in order to identify which charging process is in the graph
 """
+
+"""
 chargingseries=timeseries.groupby(['ODOMETER_METER'])
 for odometerindex, plotindex in chargingseries :    
     plotindex.plot(style='.-',x='EV_STATE_OF_CHARGE',y='EV_CHARGING_RATE_SOC_PER_HOUR',color='black', title='ODOMETER_METER =' + str(odometerindex/1000) + ' km', legend=None)
@@ -239,6 +242,7 @@ for odometerindex, plotindex in chargingseries :
 plt.xlabel('EV_STATE_OF_CHARGE [%]')
 plt.ylabel('EV_CHARGING_RATE_SOC_PER_HOUR [%]')
 plt.show()
+"""
 
 """ plot all data points in one graph: 
 """
@@ -273,9 +277,32 @@ plt.show()
     !missing: Complete correlation map for all integer and floats in the timeseries
     like https://medium.com/@sebastiannorena/finding-correlation-between-many-variables-multidimensional-dataset-with-python-5deb3f39ffb3 
 """
+""" Single correlation
 print(timeseries['EV_STATE_OF_CHARGE'].corr(timeseries['EV_RANGE_VSC_INITIAL_HV_BATT_ENERGYx100']))
 print(timeseries['EV_STATE_OF_CHARGE'].corr(timeseries['EV_RANGE_VSC_REVISED_HV_BATT_ENERGYx100']))
 print(timeseries['EV_RANGE_VSC_INITIAL_HV_BATT_ENERGYx100'].corr(timeseries['EV_RANGE_VSC_REVISED_HV_BATT_ENERGYx100']))
+"""
+
+""" No valid correlation as there is Zero variance e.g. here: 
+print(timeseries['EV_RANGE_VSC_HV_BATTERY_CONSUMPTION_SPD1'].corr(timeseries['EV_RANGE_VSC_HV_BATTERY_CONSUMPTION_SPD1']))
+"""
+
+timeseries = timeseries[data_columns_float]
+corr = timeseries.corr()
+print(tabulate(corr))
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+cax = ax.matshow(corr,cmap='coolwarm', vmin=-1, vmax=1)
+fig.colorbar(cax)
+ticks = np.arange(0,len(timeseries.columns),1)
+ax.set_xticks(ticks)
+plt.xticks(rotation=90)
+ax.set_yticks(ticks)
+ax.set_xticklabels(timeseries.columns, fontsize=8)
+ax.set_yticklabels(timeseries.columns, fontsize=8)
+plt.subplots_adjust(top=0.7)
+plt.show()
 
 
 
