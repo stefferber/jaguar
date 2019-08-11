@@ -11,8 +11,8 @@ This script is independent from logging in order to run it on different computer
 
 import threading
 import datetime
+import time
 import math
-
 import numpy as np
 from datetime import date
 import os
@@ -234,15 +234,17 @@ plt.show()
 """ !missing: I don't know how I can put the TIMESTAMP in each graph in order to identify which charging process is in the graph
 """
 
-"""
 chargingseries=timeseries.groupby(['ODOMETER_METER'])
-for odometerindex, plotindex in chargingseries :    
-    plotindex.plot(style='.-',x='EV_STATE_OF_CHARGE',y='EV_CHARGING_RATE_SOC_PER_HOUR',color='black', title='ODOMETER_METER =' + str(odometerindex/1000) + ' km', legend=None)
-
-plt.xlabel('EV_STATE_OF_CHARGE [%]')
-plt.ylabel('EV_CHARGING_RATE_SOC_PER_HOUR [%]')
+for odometerindex, plotindex in chargingseries :
+    if len(plotindex) > 5 :
+        chargingtitle = 'ODOMETER_METER = ' + '{0:,.0f}'.format(odometerindex/1000.0) + ' km\n' 
+        chargingtitle += str(plotindex['LOGTIMESTAMP'].values[0])[:19] + " to "
+        chargingtitle += str(plotindex['LOGTIMESTAMP'].values[len(plotindex)-1])[:19]   
+        plotindex.plot(style='.-',x='EV_STATE_OF_CHARGE',y='EV_CHARGING_RATE_SOC_PER_HOUR',color='black', title=chargingtitle, legend=None)
+        plt.xlabel('EV_STATE_OF_CHARGE [%]')
+        plt.ylabel('EV_CHARGING_RATE_SOC_PER_HOUR [%]')
 plt.show()
-"""
+
 
 """ plot all data points in one graph: 
 """
